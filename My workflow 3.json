@@ -1,0 +1,346 @@
+{
+  "name": "My workflow 3",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1344,
+        -560
+      ],
+      "id": "b0682513-203f-44b3-93ae-095ae1d0f913",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f13c63c8-8fc6-485b-a2d8-02f4395bb9cc",
+              "name": "text",
+              "value": "COLLEGE ATTENDANCE POLICY  Students must maintain at least 75% attendance in each course to be eligible for the final examination.  Students whose attendance is between 65% and 75% may be allowed to appear for examinations after approval from the academic department.  Students with attendance below 65% may be detained from the final examination according to college rules.  Students should inform the concerned faculty member when they are absent from a class.  Medical leave may be considered if the student submits valid supporting medical documents.  Students participating in officially approved college activities may receive attendance consideration according to college rules.  Students should regularly check their attendance records and report any discrepancy to the concerned faculty member.",
+              "type": "string"
+            },
+            {
+              "id": "7cc486bd-e0cc-4d3a-8f22-a85e754377e4",
+              "name": "Question",
+              "value": "What percentage of attendence is required to be eligible for the final examination?",
+              "type": "string"
+            },
+            {
+              "id": "40b105ff-f4a1-4307-b227-fb386f1dd312",
+              "name": "college_info",
+              "value": "College attendance requirement is 75%. Exam forms must be submitted before the college deadline. The college library is available during regular working hours. Students should carry their college ID card on campus.",
+              "type": "string"
+            },
+            {
+              "id": "2b585b58-139f-4afa-b41d-1a60236bb6ef",
+              "name": "chatInput",
+              "value": "What is the admission process of the college?",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -1120,
+        -560
+      ],
+      "id": "1450a2d4-92f7-475c-8519-9df9229301be",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.Question}}",
+        "options": {
+          "systemMessage": "You are a College Knowledge Assistant.\n\nYou have a connected vector store tool called Simple Vector Store1.\n\nFor every college-related question, you MUST use the Simple Vector Store1 tool before answering.\n\nUse the student's question as the search query.\n\nDo not answer college-specific questions from your own knowledge.\n\nAfter retrieving the relevant college documents, answer using those documents.\n\nIf the retrieved documents do not contain the answer, say:\n\"I couldn't find this information in the college knowledge base.\""
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -864,
+        -560
+      ],
+      "id": "3e3f32cd-f2fb-4d62-bb06-908b249c0909",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -864,
+        -352
+      ],
+      "id": "c3ed51aa-62b9-4201-a97c-c7764db51eb5",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "qrew0RdgNgwGGlzy",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "memoryKey": {
+          "__rl": true,
+          "value": "college_knowledge",
+          "mode": "list"
+        },
+        "embeddingBatchSize": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "typeVersion": 1.3,
+      "position": [
+        -1296,
+        -320
+      ],
+      "id": "3865f4f2-c31c-4982-9049-64027431a762",
+      "name": "Simple Vector Store"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -1296,
+        -112
+      ],
+      "id": "b9cb450c-5330-4465-b78c-d50105729186",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "qrew0RdgNgwGGlzy",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        -1104,
+        -128
+      ],
+      "id": "032582b2-4e34-45cf-8809-2bbe30a00d86",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "college_knowledge_search\n\nALWAYS use this tool to search the college knowledge base before answering any college-related question.\n\nSearch for relevant college documents using the student's question.",
+        "memoryKey": {
+          "__rl": true,
+          "value": "college_knowledge",
+          "mode": "list",
+          "cachedResultName": "college_knowledge"
+        },
+        "topK": 5
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "typeVersion": 1.3,
+      "position": [
+        -688,
+        -320
+      ],
+      "id": "4bd6fcf2-1794-4b03-9f2e-ec9a8158af20",
+      "name": "Simple Vector Store1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -688,
+        -144
+      ],
+      "id": "c2203224-43be-43a6-9e7c-740d9dfa008b",
+      "name": "Embeddings OpenAI1",
+      "credentials": {
+        "openAiApi": {
+          "id": "qrew0RdgNgwGGlzy",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "college_student_session"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        -784,
+        -192
+      ],
+      "id": "e4fc1537-362c-4259-9b0c-eeb84e3c2417",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "college-chat",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -944,
+        -160
+      ],
+      "id": "2e0beb65-da20-4cd4-a71c-dfbbbe44825b",
+      "name": "Webhook",
+      "webhookId": "a85d461d-e109-4ac1-a1d0-7f1f2acd6203"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Simple Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Vector Store": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Simple Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Simple Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Vector Store1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Simple Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "4876019f-9a98-4ed2-8b7a-a031f61b6738",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "16c5383a835cbbb10f52096c425d84a857379b249d785814f251a1012df6da84"
+  },
+  "nodeGroups": [],
+  "id": "17rCfBjUpn7gS4CQ",
+  "tags": []
+}
