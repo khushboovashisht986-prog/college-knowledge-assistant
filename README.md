@@ -136,8 +136,8 @@ The evaluation focuses on whether the assistant retrieves relevant information a
 - `README.md` — project documentation
 
 ## Demo
-
 A 3–5 minute demonstration video will show the workflow, RAG retrieval process, and question-answering capability.
+[watch the college knowledge assistant demo](https://drive.google.com/file/d/1hGEsAd21WFMp4foDy15vqTKrdt8k4gId/view?usp=sharing)
 
 ## License
 
